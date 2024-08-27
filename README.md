@@ -1,0 +1,2 @@
+# indicator_calculator
+计算windA指数日收益率、中证1000指数日收益率等指标
