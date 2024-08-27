@@ -27,15 +27,8 @@ class GetStockData(ConnectDatabase):
         self.windA_index_code = windA_index_code
         self.china1000_index_code = china1000_index_code
 
-        self.date_list = None
-
-        # 缓存查询结果，避免重复查询
-        self.index_data, self.date_list = self.get_index_data(self.index_code, self.start_date, self.end_date)
-        self.index_member_stock_df = self.get_index_member_stock_df(self.index_code, self.date_list)
-        self.windA_index_data = self.get_windA_index_data(self.windA_code, self.start_date, self.end_date)
-        self.china1000_index_data = self.get_china1000_index_data(self.china1000_code, self.start_date, self.end_date)
-
         # 默认初始化为 None，可以在需要时加载
+        self.date_list = None
         self.market_value_data = None
         self.all_stocks_daily_data = None
         self.return_volatility = None
