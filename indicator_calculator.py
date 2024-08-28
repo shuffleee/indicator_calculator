@@ -315,7 +315,7 @@ class GetStockData(ConnectDatabase):
         # 计算市值加权涨跌离散度 (∑ mv * vol) / ∑ mv
         self.return_volatility = self.return_volatility.fillna(0)
         # 删除为0的行
-        return_volatility = return_volatility[(return_volatility != 0).any(axis = 1)]
+        self.return_volatility = self.return_volatility[(self.return_volatility != 0).any(axis = 1)]
         aligned_market_value_data = market_value_data.loc[self.return_volatility.index, self.return_volatility.columns].astype(float)
 
         weighted_volatility = self.return_volatility * aligned_market_value_data
