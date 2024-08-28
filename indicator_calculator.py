@@ -32,6 +32,7 @@ class GetStockData(ConnectDatabase):
         self.market_value_data = None
         self.all_stocks_daily_data = None
         self.return_volatility = None
+        self.update = False
 
     def execute_sql(self, sql):
         """
@@ -345,11 +346,12 @@ class GetStockData(ConnectDatabase):
         # pre_date = self.get_tradeday(now_data, 20)
         pre_date = '20240726'
         self.start_date = pre_date
-
+        self.update = True
+        
         new_data = self.go()
         # 取出最新的数据
         new_data = new_data[new_data['date'] == self.end_date]
-
+        print("new_data\n", new_data)
         with open('combination_data.csv', 'a') as f:
             new_data.to_csv(f, header=False, index=False)
 
@@ -359,21 +361,21 @@ class GetStockData(ConnectDatabase):
 
         :return: DataFrame, 包含市值加权涨跌离散度和其他统计数据。
         """
-        windA_index_data = self.get_windA_index_data(self)
-        china1000_index_data = self.get_china1000_index_data(self)
+        windA_index_data = self.get_windA_index_data()
+        china1000_index_data = self.get_china1000_index_data()
         # 组合净值涉及到累积计算，所以需要取出所有数据
-        combination_profit = self.cal_combination_profit(windA_index_data, china1000_index_data, up_date=True)
+        combination_profit = self.cal_combination_profit(windA_index_data, china1000_index_data, up_date = self.update)
 
         # 获取中证全指日行情数据
-        index_data = self.get_index_data(self)
+        index_data = self.get_index_data()
         # 计算相对上涨比例指标
-        index_member_stock_df = self.get_index_member_stock_df(self)
-        all_stock_data = self.get_index_member_data(self, index_member_stock_df, self.all_stocks_daily_data)
+        index_member_stock_df = self.get_index_member_stock_df()
+        all_stock_data = self.get_index_member_data(index_member_stock_df, self.all_stocks_daily_data)
         relative_rise_ratio = self.cal_relative_rise_ratio(index_data, all_stock_data)
         combination_relative_rise_ratio = pd.merge(combination_profit, relative_rise_ratio, on='date',
                                                     how='inner')
         # 计算市值加权涨跌离散度
-        return_volatility_df = self.get_market_value(self, self.market_value_data)
+        return_volatility_df = self.get_market_value(self.market_value_data)
         combination_data = pd.merge(combination_relative_rise_ratio, return_volatility_df, on='date',
                                     how='inner')
         
@@ -383,14 +385,14 @@ if __name__ == '__main__':
     
     stock_data = GetStockData(start_date='20140825', end_date='20240823')
 
-    combination_data = stock_data.go()
+    # combination_data = stock_data.go()
 
     # # 读取数据
     # all_stocks_daily_data = pd.read_csv('all_stocks_daily_data.csv')
     # # 读取市值数据
     # market_value_data = pd.read_csv('market_value_data.csv')
 
-    combination_data.to_csv('combination_data.csv', index=False)
+    # combination_data.to_csv('combination_data.csv', index=False)
 
     # 如果需要更新数据，调用data_update方法
     stock_data.data_update()
